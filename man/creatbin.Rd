@@ -11,6 +11,11 @@ creatbin(col, binmatrix)
 
 \item{binmatrix}{Imput empty matrix.}
 }
+\value{
+a matrix
+
+\item{a matix}{A diagonal matrix}
+}
 \description{
 Internal function for glmm.hp() to create diagonal matrix
 }

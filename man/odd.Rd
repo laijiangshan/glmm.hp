@@ -9,6 +9,11 @@ odd(val)
 \arguments{
 \item{val}{Imput number.}
 }
+\value{
+a logical value
+
+\item{Logical value}{TRUE or FALSE}
+}
 \description{
 Internal function for glmm.hp() to determine whether the odd number
 }

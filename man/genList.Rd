@@ -11,6 +11,11 @@ genList(ivlist, value)
 
 \item{value}{The sequence ID.}
 }
+\value{
+a vector
+
+\item{newlist}{A vector for variable index.}
+}
 \description{
 Internal function for glmm.hp()
 }

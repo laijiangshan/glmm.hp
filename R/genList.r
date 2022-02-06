@@ -1,6 +1,8 @@
 #'Internal function for glmm.hp()
 #' @param  ivlist The names of explanatory variable.
 #' @param  value  The sequence ID.
+#' @return a vector
+#' @return \item{newlist}{A vector for variable index.}
 #' @keywords internal
 
 genList <-

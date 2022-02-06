@@ -1,6 +1,9 @@
 #'Internal function for glmm.hp() to create diagonal matrix
 #' @param  col Imput number.
 #' @param  binmatrix Imput empty matrix.
+
+#' @return a matrix
+#' @return \item{a matix}{A diagonal matrix}
 #' @keywords internal
 creatbin <-
 function(col, binmatrix) {
@@ -20,6 +23,8 @@ return(binmatrix)
 
 #'Internal function for glmm.hp() to determine whether the odd number
 #' @param  val Imput number.
+#' @return a logical value
+#' @return \item{Logical value}{TRUE or FALSE}
 #' @keywords internal
 odd <- function (val) 
 {
