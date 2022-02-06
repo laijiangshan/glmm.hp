@@ -1,4 +1,4 @@
-glmm.hp is an R package for Hierarchical partitioning and Commonality analysis for Marginal R2 for Generalized Mixed-effect Models, to install it, please use the following command in R:
+glmm.hp is an R package for Hierarchical partitioning for Marginal R2 for Generalized Mixed-effect Models, to install it, please use the following command in R:
 
 library(devtools)
 
