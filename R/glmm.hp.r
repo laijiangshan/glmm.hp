@@ -63,7 +63,7 @@ r2type  <-  row.names(outr2)
 nr2type   <-  length(r2type)
 if(nr2type==0)
 {nr2type <- 1
-r2type <- "hierarchical partitioning"
+r2type <- "hierarchical.partitioning"
 }
 #ifelse(class(mod)=="merMod",dat <- eval(mod@call$data),dat <- eval(mod$call$data))
 if(inherits(mod, "merMod"))
