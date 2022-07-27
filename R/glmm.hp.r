@@ -36,7 +36,7 @@ glmm.hp <- function(mod)
   if (!inherits(mod, c("merMod","lme"))) stop("glmm.hp only supports lme or merMod objects at the moment")
   if(inherits(mod, "merMod"))
   {# interaction checks
-  if("*"%in%strsplit(as.character(mod@call$formula)[3],"")[[1]])stop("glmm.hp does not supports interaction terms at the moment")
+  if("*"%in%strsplit(as.character(mod@call$formula)[3],"")[[1]])stop("Please put the interaction term as a new variable (i.e. the product of the variables) and put it and avoid the asterisk (*) in the original model")
   varname <- strsplit(strsplit(as.character(mod@call$formula)[3],"(",fixed=T)[[1]][1]," ")[[1]]
   ivname <- varname[seq(1,length(varname),2)]
   }
@@ -200,22 +200,23 @@ for (k in 1:nr2type)
                              justify = "right")
   dimnames(outputcommonM) <- list(rowNames, colNames)
 
- # VariableImportance <- matrix(nrow = nvar, ncol = 4)
- VariableImportance <- matrix(nrow = nvar, ncol = 2)
+  VariableImportance <- matrix(nrow = nvar, ncol = 4)
+# VariableImportance <- matrix(nrow = nvar, ncol = 2)
   for (i in 1:nvar) {
-	#VariableImportance[i, 3] <-  round(sum(binarymx[i, ] * (commonM[,3]/apply(binarymx,2,sum))), digits = 4)
-	VariableImportance[i, 1] <-  round(sum(binarymx[i, ] * (commonM[,3]/apply(binarymx,2,sum))), digits = 4)
+	VariableImportance[i, 3] <-  round(sum(binarymx[i, ] * (commonM[,3]/apply(binarymx,2,sum))), digits = 4)
+	#VariableImportance[i, 1] <-  round(sum(binarymx[i, ] * (commonM[,3]/apply(binarymx,2,sum))), digits = 4)
   }
   
-  #VariableImportance[,1] <- outputcommonM[1:nvar,1]
- # VariableImportance[,2] <- VariableImportance[,3]-VariableImportance[,1]
+  VariableImportance[,1] <- outputcommonM[1:nvar,1]
+  VariableImportance[,2] <- VariableImportance[,3]-VariableImportance[,1]
   
-  #total=round(sum(VariableImportance[,3]),digits = 4)
-  total=round(sum(VariableImportance[,1]),digits = 4)
-  #VariableImportance[, 4] <- round(100*VariableImportance[, 3]/total,2)
-VariableImportance[, 2] <- round(100*VariableImportance[, 1]/total,2)
-  dimnames(VariableImportance) <- list(iv.name, c("Individual","I.perc(%)"))
-
+  total=round(sum(VariableImportance[,3]),digits = 4)
+  #total=round(sum(VariableImportance[,1]),digits = 4)
+  VariableImportance[, 4] <- round(100*VariableImportance[, 3]/total,2)
+#VariableImportance[, 2] <- round(100*VariableImportance[, 1]/total,2)
+ #dimnames(VariableImportance) <- list(iv.name, c("Individual","I.perc(%)"))
+ dimnames(VariableImportance) <- list(iv.name, c("Unique","Average.share","Individual","I.perc(%)"))
+  
 #if(commonality)
 #{outputList <- list(Total.Marginal.R2=total,commonality = outputcommonM, Hier.part = VariableImportance)}
 #else

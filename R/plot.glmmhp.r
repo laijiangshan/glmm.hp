@@ -15,7 +15,7 @@
 
 
 plot.glmmhp <- function(x, plot.perc = FALSE, n = 1,...){
-  if (class(x) != "glmmhp"){
+  if (!inherits(x, "glmmhp")){
     stop("x should be the output of glmm.hp()")
   }
 
