@@ -1,14 +1,14 @@
 Package: glmm.hp
 Type: Package
 Title: Hierarchical Partitioning of Marginal R2 for Generalized Mixed-Effect Models
-Version: 0.0-5
-Date:  2022-7-17
+Version: 0.0-6
+Date:  2022-12-16
 Depends:  R (>= 3.4.0),MuMIn,ggplot2
 Imports:lme4
-Authors@R: c(person("Jiangshan", "Lai", , "lai@ibcas.ac.cn", role = c("aut", "cre"),
+Authors@R: c(person("Jiangshan", "Lai", , "lai@njfu.edu.cn", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-0279-8816")),person("Kim", "Nimon", role="aut"))
-Maintainer: Jiangshan Lai <lai@ibcas.ac.cn>
-Description: Conducts hierarchical partitioning to calculate individual contributions of each fixed effects towards marginal R2 for generalized mixed-effect model based on output of r.squaredGLMM() in 'MuMIn', applying the algorithm of Lai J.,Zou Y., Zhang J.,Peres-Neto P.(2022) Generalizing hierarchical and variation partitioning in multiple regression and canonical analyses using the rdacca.hp R package.Methods in Ecology and Evolution,13:782-788<DOI:10.1111/2041-210X.13800>.
+Maintainer: Jiangshan Lai <lai@njfu.edu.cn>
+Description: Conducts hierarchical partitioning to calculate individual contributions of each fixed effects towards marginal R2 for generalized mixed-effect model based on output of r.squaredGLMM() in 'MuMIn', applying the algorithm of Lai J.,Zou Y., Zhang S.,Zhang X.,Mao L.(2022)glmm.hp: an R package for computing individual effect of predictors in generalized linear mixed models.Journal of Plant Ecology,15(6)1302-1307<doi:10.1093/jpe/rtac096>.
 License: GPL
 Encoding: UTF-8
 URL: https://github.com/laijiangshan/glmm.hp
