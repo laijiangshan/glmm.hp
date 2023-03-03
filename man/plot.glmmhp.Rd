@@ -28,5 +28,5 @@ mod1 <- lmer(Sepal.Length ~ Petal.Length + Petal.Width +(1 | Species), data = ir
 plot(glmm.hp(mod1))
 }
 \author{
-{Jiangshan Lai} \email{lai@ibcas.ac.cn}
+{Jiangshan Lai} \email{lai@njfu.edu.cn}
 }

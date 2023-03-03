@@ -7,7 +7,7 @@
 glmm.hp(mod)
 }
 \arguments{
-\item{mod}{Fitted lme4 or nlme model objects.}
+\item{mod}{Fitted lme4,nlme or glmmTMB model objects.}
 }
 \value{
 \item{Total.Marginal.R2}{The marginal R2 (fixed effect) for the full model.}
@@ -23,13 +23,14 @@ This function conducts hierarchical partitioning to calculate the individual con
 \examples{
 library(MuMIn)
 library(lme4)
-mod1 <- lmer(Sepal.Length ~ Petal.Length + Petal.Width +(1 | Species), data = iris)
+mod1 <- lmer(Sepal.Length ~ Petal.Length+Petal.Width +(1 | Species),data = iris)
 r.squaredGLMM(mod1)
 glmm.hp(mod1)
 plot(glmm.hp(mod1))
 }
 \references{
 \itemize{
+\item Lai J.,Zou Y., Zhang S.,Zhang X.,Mao L.(2022)glmm.hp: an R package for computing individual effect of predictors in generalized linear mixed models.Journal of Plant Ecology,15(6):1302-1307<DOI:10.1093/jpe/rtac096>
 \item Lai J.,Zou Y., Zhang J.,Peres-Neto P.(2022) Generalizing hierarchical and variation partitioning in multiple regression and canonical analyses using the rdacca.hp R package.Methods in Ecology and Evolution,13(4):782-788<DOI:10.1111/2041-210X.13800>
 \item Chevan, A. & Sutherland, M. (1991). Hierarchical partitioning. American Statistician, 45, 90-96. doi:10.1080/00031305.1991.10475776
 \item Nimon, K., Oswald, F.L. & Roberts, J.K. (2013). Yhat: Interpreting regression effects. R package version 2.0.0.
@@ -38,7 +39,7 @@ plot(glmm.hp(mod1))
 }
 }
 \author{
-{Jiangshan Lai} \email{lai@ibcas.ac.cn}
+{Jiangshan Lai} \email{lai@njfu.edu.cn}
 
 {Kim Nimon} \email{kim.nimon@gmail.com}
 }

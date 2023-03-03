@@ -5,7 +5,7 @@
 #' @param  n Integer; which marginal R2 in output of r.squaredGLMM to plot. 
 #' @param ... unused
 #' @return a ggplot object
-#' @author {Jiangshan Lai} \email{lai@ibcas.ac.cn}
+#' @author {Jiangshan Lai} \email{lai@njfu.edu.cn}
 #' @export
 #' @examples
 #' library(MuMIn)

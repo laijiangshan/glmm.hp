@@ -1,18 +1,19 @@
 #' Hierarchical Partitioning of Marginal R2 for Generalized Mixed-Effect Models
 
-#' @param  mod  Fitted lme4 or nlme model objects.
+#' @param  mod  Fitted lme4,nlme or glmmTMB model objects.
 
 #' @details This function conducts hierarchical partitioning to calculate the individual contributions of each predictor towards marginal R2 for Generalized Mixed-effect Model. The marginal R2 is the output of r.squaredGLMM in MuMIn package.
 
 #' @return \item{Total.Marginal.R2}{The marginal R2 (fixed effect) for the full model.}
 #' @return \item{Hier.part}{A matrix containing individual effects and percentage of individual effects towards total marginal R2 for each predictor.}
 
-#' @author {Jiangshan Lai} \email{lai@ibcas.ac.cn}
+#' @author {Jiangshan Lai} \email{lai@njfu.edu.cn}
 #' @author {Kim Nimon} \email{kim.nimon@gmail.com}
 
 
 #' @references
 #' \itemize{
+#' \item Lai J.,Zou Y., Zhang S.,Zhang X.,Mao L.(2022)glmm.hp: an R package for computing individual effect of predictors in generalized linear mixed models.Journal of Plant Ecology,15(6):1302-1307<DOI:10.1093/jpe/rtac096>
 #' \item Lai J.,Zou Y., Zhang J.,Peres-Neto P.(2022) Generalizing hierarchical and variation partitioning in multiple regression and canonical analyses using the rdacca.hp R package.Methods in Ecology and Evolution,13(4):782-788<DOI:10.1111/2041-210X.13800>
 #' \item Chevan, A. & Sutherland, M. (1991). Hierarchical partitioning. American Statistician, 45, 90-96. doi:10.1080/00031305.1991.10475776
 #' \item Nimon, K., Oswald, F.L. & Roberts, J.K. (2013). Yhat: Interpreting regression effects. R package version 2.0.0.
@@ -25,7 +26,7 @@
 #'@examples
 #'library(MuMIn)
 #'library(lme4)
-#'mod1 <- lmer(Sepal.Length ~ Petal.Length + Petal.Width +(1 | Species), data = iris)
+#'mod1 <- lmer(Sepal.Length ~ Petal.Length+Petal.Width +(1 | Species),data = iris)
 #'r.squaredGLMM(mod1)
 #'glmm.hp(mod1)
 #'plot(glmm.hp(mod1))
@@ -33,19 +34,30 @@
 glmm.hp <- function(mod)
 {
   # initial checks
-  if (!inherits(mod, c("merMod","lme"))) stop("glmm.hp only supports lme or merMod objects at the moment")
+  if (!inherits(mod, c("merMod","lme","glmmTMB"))) stop("glmm.hp only supports lme, merMod or glmmTMB objects at the moment")
   if(inherits(mod, "merMod"))
   {# interaction checks
-  if("*"%in%strsplit(as.character(mod@call$formula)[3],"")[[1]])stop("Please put the interaction term as a new variable (i.e. the product of the variables) and put it and avoid the asterisk (*) in the original model")
+  Formu <- strsplit(as.character(mod@call$formula)[3],"")[[1]]
+  if("*"%in%Formu|":"%in%Formu)stop("Please put the interaction term as a new variable (i.e. the product of the variables) and put it and avoid the asterisk (*) and colon(:) in the original model")
   varname <- strsplit(strsplit(as.character(mod@call$formula)[3],"(",fixed=T)[[1]][1]," ")[[1]]
   ivname <- varname[seq(1,length(varname),2)]
   }
   
   if(inherits(mod, "lme"))
   {# interaction checks
-  if("*"%in%strsplit(as.character(mod$call$fixed)[3],"")[[1]])stop("glmm.hp does not supports interaction terms at the moment")
+  Formu <- strsplit(as.character(mod$call$fixed)[3],"")[[1]]
+  if("*"%in%Formu|":"%in%Formu)stop("Please put the interaction term as a new variable (i.e. the product of the variables) and put it and avoid the asterisk (*) and colon(:) in the original model")
   ivname <- strsplit(as.character(mod$call$fixed)[3]," + ",fixed=T)[[1]]
   }
+  
+   if(inherits(mod, "glmmTMB"))
+  {# interaction checks
+  Formu <- strsplit(as.character(mod$call$formula)[3],"")[[1]]
+  if("*"%in%Formu|":"%in%Formu)stop("Please put the interaction term as a new variable (i.e. the product of the variables) and put it and avoid the asterisk (*) and colon(:) in the original model")
+   varname <- strsplit(strsplit(as.character(mod$call$formula)[3],"(",fixed=T)[[1]][1]," ")[[1]]
+  ivname <- varname[seq(1,length(varname),2)]
+  }
+   
   
   iv.name <- ivname
   nvar <- length(iv.name)
@@ -67,7 +79,9 @@ r2type <- 'hierarchical.partitioning'
 }
 #ifelse(class(mod)=="merMod",dat <- eval(mod@call$data),dat <- eval(mod$call$data))
 if(inherits(mod, "merMod"))
-{dat <- na.omit(eval(mod@call$data))
+{dat <- eval(mod@call$data)
+if(sum(is.na(dat[,ivname]))>0){dat <- dat[-which(rowSums(is.na(dat[,ivname]))>0),]} 
+#dat <- na.omit(eval(mod@call$data))
 if(!inherits(dat, "data.frame")){stop("Please change the name of data object in the original (g)lmm analysis then try again.")}
 to_del <- paste(paste("-", iv.name, sep= ""), collapse = " ")
 # reduced formula
@@ -80,6 +94,16 @@ if(inherits(mod, "lme"))
 mod_null <- stats::update(object = mod,data=dat,fixed=~1)
 }
 
+if(inherits(mod, "glmmTMB"))
+{dat <- na.omit(eval(mod$call$data))
+if(!inherits(dat, "data.frame")){stop("Please change the name of data object in the original (g)lmm analysis then try again.")}
+to_del <- paste(paste("-", iv.name, sep= ""), collapse = " ")
+# reduced formula
+ modnull<- stats::update(stats::formula(mod), paste(". ~ . ", to_del, sep=""))
+ mod_null <-  stats::update(object = mod, formula. = modnull, data = dat)
+ }
+
+
 outputList  <- list()
 outputList[[1]] <- outr2
 for (k in 1:nr2type)
@@ -87,7 +111,7 @@ for (k in 1:nr2type)
   commonM <- matrix(nrow = totalN, ncol = 3)
   for (i in 1:totalN) {
     tmp.name <- iv.name[as.logical(binarymx[, i])]
-   if(inherits(mod, "merMod"))
+   if(inherits(mod, "merMod")|inherits(mod, "glmmTMB"))
    {to_add <- paste(paste("+", tmp.name, sep= ""), collapse = " ")
     modname <- stats::update(stats::formula(mod_null), paste(". ~ . ", to_add, sep=""))
     modnew  <- stats::update(object = mod_null, formula. = modname, data = dat) 
