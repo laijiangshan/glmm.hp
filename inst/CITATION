@@ -1,12 +1,8 @@
 citHeader("To cite glmm.hp in publications use:")
 
-citEntry(entry = "Article",
+bibentry(bibtype = "Article",
          title        = "glmm.hp: an R package for computing individual effect of predictors in generalized linear mixed models.",
-         author       = personList(as.person("Jiangshan Lai"),
-                                   as.person("Yi Zou"),
-								   as.person("Shuang Zhang"),
-								   as.person("Xiaoguang Zhang"),
-								   as.person("Lingfeng Mao")),
+         author       = as.person("Jiangshan Lai [aut],Yi Zou [aut],Shuang Zhang [aut],Xiaoguang Zhang [aut],Lingfeng Mao [aut]"),
          journal      = "Journal of Plant Ecology",
 		  volume       = "15(6):1302-1307",
          year         = "2022",

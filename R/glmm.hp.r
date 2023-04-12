@@ -1,11 +1,12 @@
 #' Hierarchical Partitioning of Marginal R2 for Generalized Mixed-Effect Models
 
-#' @param  mod  Fitted lme4,nlme or glmmTMB model objects.
+#' @param  mod  Fitted lme4,nlme,glmmTMB,glm or lm model objects.
+#' @param  type The type of R-square of lm, either "R2" or "adjR2", in which "R2" is unadjusted R-square and "adjR2" is adjusted R-square, the default is "adjR2". The adjusted R-square is calculated using Ezekiel's formula (Ezekiel 1930) for lm. 
 
-#' @details This function conducts hierarchical partitioning to calculate the individual contributions of each predictor towards marginal R2 for Generalized Mixed-effect Model. The marginal R2 is the output of r.squaredGLMM in MuMIn package.
+#' @details This function conducts hierarchical partitioning to calculate the individual contributions of each predictor towards total (marginal) R2 for Generalized Linear Mixed-effect Model (including lm,glm and glmm). The marginal R2 is the output of r.squaredGLMM in MuMIn package for glm and glmm.
 
-#' @return \item{Total.Marginal.R2}{The marginal R2 (fixed effect) for the full model.}
-#' @return \item{Hier.part}{A matrix containing individual effects and percentage of individual effects towards total marginal R2 for each predictor.}
+#' @return \item{r.squaredGLMM}{The R2 for the full model.}
+#' @return \item{hierarchical.partitioning}{A matrix containing individual effects and percentage of individual effects towards total (marginal) R2 for each predictor.}
 
 #' @author {Jiangshan Lai} \email{lai@njfu.edu.cn}
 #' @author {Kim Nimon} \email{kim.nimon@gmail.com}
@@ -19,6 +20,7 @@
 #' \item Nimon, K., Oswald, F.L. & Roberts, J.K. (2013). Yhat: Interpreting regression effects. R package version 2.0.0.
 #' \item Nakagawa, S., & Schielzeth, H. (2013). A general and simple method for obtaining R2 from generalized linear mixed-effects models. Methods in Ecology and Evolution, 4(2), 133-142.
 #' \item Nakagawa, S., Johnson, P. C., & Schielzeth, H. (2017). The coefficient of determination R2 and intra-class correlation coefficient from generalized linear mixed-effects models revisited and expanded. Journal of the Royal Society Interface, 14(134), 20170213.
+#' \item Ezekiel, M. (1930) Methods of Correlational Analysis. Wiley, New York.
 #' }
 
 
@@ -30,11 +32,19 @@
 #'r.squaredGLMM(mod1)
 #'glmm.hp(mod1)
 #'plot(glmm.hp(mod1))
+#'mod2 <- glm(Sepal.Length ~ Petal.Length+Petal.Width,data = iris)
+#'r.squaredGLMM(mod2)
+#'glmm.hp(mod2)
+#'plot(glmm.hp(mod2))
+#'mod3 <- lm(Sepal.Length ~ Petal.Length+Petal.Width,data = iris)
+#'glmm.hp(mod3,type="R2")
+#'glmm.hp(mod3,type="adjR2")
 
-glmm.hp <- function(mod)
+
+glmm.hp <- function(mod,type = "adjR2")
 {
   # initial checks
-  if (!inherits(mod, c("merMod","lme","glmmTMB"))) stop("glmm.hp only supports lme, merMod or glmmTMB objects at the moment")
+  if (!inherits(mod, c("merMod","lme","glmmTMB","glm","lm"))) stop("glmm.hp only supports lme, merMod, glmmTMB or glm objects at the moment")
   if(inherits(mod, "merMod"))
   {# interaction checks
   Formu <- strsplit(as.character(mod@call$formula)[3],"")[[1]]
@@ -57,6 +67,13 @@ glmm.hp <- function(mod)
    varname <- strsplit(strsplit(as.character(mod$call$formula)[3],"(",fixed=T)[[1]][1]," ")[[1]]
   ivname <- varname[seq(1,length(varname),2)]
   }
+ 
+    if(inherits(mod, c("glm","lm")))
+  {# interaction checks
+  Formu <- strsplit(as.character(mod$call$formula)[3],"")[[1]]
+  if("*"%in%Formu|":"%in%Formu)stop("Please put the interaction term as a new variable (i.e. the product of the variables) and put it and avoid the asterisk (*) and colon(:) in the original model")
+  ivname=attr(mod$terms, "term.labels") 
+  }
    
   
   iv.name <- ivname
@@ -71,6 +88,10 @@ glmm.hp <- function(mod)
   }
 
 outr2  <- r.squaredGLMM(mod)
+if(inherits(mod, "lm")&!inherits(mod, "glm"))
+{if(type=="adjR2")outr2  <- summary(mod)$adj.r.squared
+if(type=="R2")outr2  <- summary(mod)$r.squared
+}
 r2type  <-  row.names(outr2)
 nr2type   <-  length(r2type)
 if(nr2type==0)
@@ -94,7 +115,8 @@ if(inherits(mod, "lme"))
 mod_null <- stats::update(object = mod,data=dat,fixed=~1)
 }
 
-if(inherits(mod, "glmmTMB"))
+
+if(inherits(mod, c("glmmTMB","glm","lm")))
 {dat <- na.omit(eval(mod$call$data))
 if(!inherits(dat, "data.frame")){stop("Please change the name of data object in the original (g)lmm analysis then try again.")}
 to_del <- paste(paste("-", iv.name, sep= ""), collapse = " ")
@@ -115,14 +137,28 @@ for (k in 1:nr2type)
    {to_add <- paste(paste("+", tmp.name, sep= ""), collapse = " ")
     modname <- stats::update(stats::formula(mod_null), paste(". ~ . ", to_add, sep=""))
     modnew  <- stats::update(object = mod_null, formula. = modname, data = dat) 
+	commonM[i, 2]  <- MuMIn::r.squaredGLMM(modnew)[k,1]
 	}
 	
 	if(inherits(mod, "lme"))
 	{to_add <- paste("~",paste(tmp.name,collapse = " + "),sep=" ")
 	  modnew  <- stats::update(object = mod_null, data = dat,fixed=to_add) 
+	commonM[i, 2]  <- MuMIn::r.squaredGLMM(modnew)[k,1]
+	}
+	 
+	if(inherits(mod, "glm"))
+    {to_add <- paste("~",paste(tmp.name,collapse = " + "),sep=" ")
+    modnew  <- stats::update(object = mod_null, data = dat,to_add) 
+    commonM[i, 2]  <- MuMIn::r.squaredGLMM(modnew)[k,1]
+	}
+
+	if(inherits(mod, "lm")&!inherits(mod, "glm"))
+    {to_add <- paste("~",paste(tmp.name,collapse = " + "),sep=" ")
+    modnew  <- stats::update(object = mod_null, data = dat,to_add) 
+    if(type=="adjR2")commonM[i, 2]  <- summary(modnew)$adj.r.squared
+	if(type=="R2")commonM[i, 2]  <- summary(modnew)$r.squared
 	}
 	
-	commonM[i, 2]  <- MuMIn::r.squaredGLMM(modnew)[k,1]
   }
 
   commonlist <- vector("list", totalN)
