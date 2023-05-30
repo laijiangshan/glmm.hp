@@ -2,6 +2,7 @@
 
 #' @param  mod  Fitted lme4,nlme,glmmTMB,glm or lm model objects.
 #' @param  type The type of R-square of lm, either "R2" or "adjR2", in which "R2" is unadjusted R-square and "adjR2" is adjusted R-square, the default is "adjR2". The adjusted R-square is calculated using Ezekiel's formula (Ezekiel 1930) for lm. 
+#' @param  commonality Logical; If TRUE, the result of commonality analysis (2^N-1 fractions for N predictors) is shown, the default is FALSE. 
 
 #' @details This function conducts hierarchical partitioning to calculate the individual contributions of each predictor towards total (marginal) R2 for Generalized Linear Mixed-effect Model (including lm,glm and glmm). The marginal R2 is the output of r.squaredGLMM in MuMIn package for glm and glmm.
 
@@ -38,10 +39,10 @@
 #'plot(glmm.hp(mod2))
 #'mod3 <- lm(Sepal.Length ~ Petal.Length+Petal.Width,data = iris)
 #'glmm.hp(mod3,type="R2")
-#'glmm.hp(mod3,type="adjR2")
+#'glmm.hp(mod3,commonality=TRUE)
 
 
-glmm.hp <- function(mod,type = "adjR2")
+glmm.hp <- function(mod,type = "adjR2",commonality = FALSE) 
 {
   # initial checks
   if (!inherits(mod, c("merMod","lme","glmmTMB","glm","lm"))) stop("glmm.hp only supports lme, merMod, glmmTMB or glm objects at the moment")
@@ -96,7 +97,10 @@ r2type  <-  row.names(outr2)
 nr2type   <-  length(r2type)
 if(nr2type==0)
 {nr2type <- 1
-r2type <- 'hierarchical.partitioning'
+if(commonality)
+{r2type <- 'commonality.analysis'}
+else
+{r2type <- 'hierarchical.partitioning'}
 }
 #ifelse(class(mod)=="merMod",dat <- eval(mod@call$data),dat <- eval(mod$call$data))
 if(inherits(mod, "merMod"))
@@ -277,14 +281,17 @@ for (k in 1:nr2type)
  #dimnames(VariableImportance) <- list(iv.name, c("Individual","I.perc(%)"))
  dimnames(VariableImportance) <- list(iv.name, c("Unique","Average.share","Individual","I.perc(%)"))
   
-#if(commonality)
-#{outputList <- list(Total.Marginal.R2=total,commonality = outputcommonM, Hier.part = VariableImportance)}
-#else
-#{outputList<-list(Total.Marginal.R2=total,Hier.part= VariableImportance)}
-#outputList[[j]]<- list(Total.Marginal.R2=total,Hier.part= VariableImportance)
-outputList[[k+1]]<-VariableImportance
+if(commonality)
+{outputList[[k+1]]<-outputcommonM}
+
+else
+{outputList[[k+1]]<-VariableImportance}
 }
 names(outputList) <- c("r.squaredGLMM",r2type)
+if(inherits(mod, "lm")&!inherits(mod, "glm")){names(outputList) <- c("Total.R2",r2type)}
+outputList$variables <- iv.name
+if(commonality){outputList$type="commonality.analysis"}
+if(!commonality){outputList$type="hierarchical.partitioning"}
 class(outputList) <- "glmmhp" # Class definition
 outputList
 }

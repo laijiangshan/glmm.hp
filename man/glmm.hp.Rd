@@ -4,12 +4,14 @@
 \alias{glmm.hp}
 \title{Hierarchical Partitioning of Marginal R2 for Generalized Mixed-Effect Models}
 \usage{
-glmm.hp(mod, type = "adjR2")
+glmm.hp(mod, type = "adjR2", commonality = FALSE)
 }
 \arguments{
 \item{mod}{Fitted lme4,nlme,glmmTMB,glm or lm model objects.}
 
 \item{type}{The type of R-square of lm, either "R2" or "adjR2", in which "R2" is unadjusted R-square and "adjR2" is adjusted R-square, the default is "adjR2". The adjusted R-square is calculated using Ezekiel's formula (Ezekiel 1930) for lm.}
+
+\item{commonality}{Logical; If TRUE, the result of commonality analysis (2^N-1 fractions for N predictors) is shown, the default is FALSE.}
 }
 \value{
 \item{r.squaredGLMM}{The R2 for the full model.}
@@ -35,7 +37,7 @@ glmm.hp(mod2)
 plot(glmm.hp(mod2))
 mod3 <- lm(Sepal.Length ~ Petal.Length+Petal.Width,data = iris)
 glmm.hp(mod3,type="R2")
-glmm.hp(mod3,type="adjR2")
+glmm.hp(mod3,commonality=TRUE)
 }
 \references{
 \itemize{

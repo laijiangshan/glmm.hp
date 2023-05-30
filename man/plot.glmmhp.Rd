@@ -4,12 +4,14 @@
 \alias{plot.glmmhp}
 \title{Plot for a \code{\link{glmm.hp}} object}
 \usage{
-\method{plot}{glmmhp}(x, plot.perc = FALSE, n = 1, ...)
+\method{plot}{glmmhp}(x, plot.perc = FALSE, color = NULL, n = 1, ...)
 }
 \arguments{
 \item{x}{A \code{\link{glmm.hp}} object.}
 
 \item{plot.perc}{Logical;if TRUE, the bar plot (based on ggplot2 package) of the percentage to individual effects of variables or groups towards total explained variation, the default is FALSE to show plot with original individual effects.}
+
+\item{color}{Color of variables.}
 
 \item{n}{Integer; which marginal R2 in output of r.squaredGLMM to plot.}
 
@@ -26,6 +28,9 @@ library(MuMIn)
 library(lme4)
 mod1 <- lmer(Sepal.Length ~ Petal.Length + Petal.Width +(1 | Species), data = iris)
 plot(glmm.hp(mod1))
+mod3 <- lm(Sepal.Length ~ Petal.Length+Petal.Width,data = iris)
+plot(glmm.hp(mod3,type="R2"))
+plot(glmm.hp(mod3,commonality=TRUE))
 }
 \author{
 {Jiangshan Lai} \email{lai@njfu.edu.cn}
