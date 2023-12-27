@@ -27,20 +27,24 @@ This function conducts hierarchical partitioning to calculate the individual con
 \examples{
 library(MuMIn)
 library(lme4)
-mod1 <- lmer(Sepal.Length ~ Petal.Length+Petal.Width +(1 | Species),data = iris)
+mod1 <- lmer(Sepal.Length ~ Petal.Length + Petal.Width + Petal.Length:Petal.Width+(1|Species),data = iris)
 r.squaredGLMM(mod1)
 glmm.hp(mod1)
-plot(glmm.hp(mod1))
-mod2 <- glm(Sepal.Length ~ Petal.Length+Petal.Width,data = iris)
+a <- glmm.hp(mod1)
+plot(a)
+mod2 <- glm(Sepal.Length ~ Petal.Length + Petal.Width + Petal.Length:Petal.Width, data = iris)
 r.squaredGLMM(mod2)
 glmm.hp(mod2)
+b <- glmm.hp(mod2)
+plot(b)
 plot(glmm.hp(mod2))
-mod3 <- lm(Sepal.Length ~ Petal.Length+Petal.Width,data = iris)
+mod3 <- lm(Sepal.Length ~ Petal.Length + Petal.Width + Petal.Length:Petal.Width, data = iris)
 glmm.hp(mod3,type="R2")
 glmm.hp(mod3,commonality=TRUE)
 }
 \references{
 \itemize{
+\item Lai J.,Zhu W., Cui D.,Mao L.(2023)Extension of the glmm.hp package to Zero-Inflated generalized linear mixed models and multiple regression.Journal of Plant Ecology,16(6):rtad038<DOI:10.1093/jpe/rtad038>
 \item Lai J.,Zou Y., Zhang S.,Zhang X.,Mao L.(2022)glmm.hp: an R package for computing individual effect of predictors in generalized linear mixed models.Journal of Plant Ecology,15(6):1302-1307<DOI:10.1093/jpe/rtac096>
 \item Lai J.,Zou Y., Zhang J.,Peres-Neto P.(2022) Generalizing hierarchical and variation partitioning in multiple regression and canonical analyses using the rdacca.hp R package.Methods in Ecology and Evolution,13(4):782-788<DOI:10.1111/2041-210X.13800>
 \item Chevan, A. & Sutherland, M. (1991). Hierarchical partitioning. American Statistician, 45, 90-96. doi:10.1080/00031305.1991.10475776
@@ -52,6 +56,4 @@ glmm.hp(mod3,commonality=TRUE)
 }
 \author{
 {Jiangshan Lai} \email{lai@njfu.edu.cn}
-
-{Kim Nimon} \email{kim.nimon@gmail.com}
 }

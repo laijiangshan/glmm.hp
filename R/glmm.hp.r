@@ -10,11 +10,12 @@
 #' @return \item{hierarchical.partitioning}{A matrix containing individual effects and percentage of individual effects towards total (marginal) R2 for each predictor.}
 
 #' @author {Jiangshan Lai} \email{lai@njfu.edu.cn}
-#' @author {Kim Nimon} \email{kim.nimon@gmail.com}
+
 
 
 #' @references
 #' \itemize{
+#' \item Lai J.,Zhu W., Cui D.,Mao L.(2023)Extension of the glmm.hp package to Zero-Inflated generalized linear mixed models and multiple regression.Journal of Plant Ecology,16(6):rtad038<DOI:10.1093/jpe/rtad038>
 #' \item Lai J.,Zou Y., Zhang S.,Zhang X.,Mao L.(2022)glmm.hp: an R package for computing individual effect of predictors in generalized linear mixed models.Journal of Plant Ecology,15(6):1302-1307<DOI:10.1093/jpe/rtac096>
 #' \item Lai J.,Zou Y., Zhang J.,Peres-Neto P.(2022) Generalizing hierarchical and variation partitioning in multiple regression and canonical analyses using the rdacca.hp R package.Methods in Ecology and Evolution,13(4):782-788<DOI:10.1111/2041-210X.13800>
 #' \item Chevan, A. & Sutherland, M. (1991). Hierarchical partitioning. American Statistician, 45, 90-96. doi:10.1080/00031305.1991.10475776
@@ -29,15 +30,18 @@
 #'@examples
 #'library(MuMIn)
 #'library(lme4)
-#'mod1 <- lmer(Sepal.Length ~ Petal.Length+Petal.Width +(1 | Species),data = iris)
+#'mod1 <- lmer(Sepal.Length ~ Petal.Length + Petal.Width + Petal.Length:Petal.Width+(1|Species),data = iris)
 #'r.squaredGLMM(mod1)
 #'glmm.hp(mod1)
-#'plot(glmm.hp(mod1))
-#'mod2 <- glm(Sepal.Length ~ Petal.Length+Petal.Width,data = iris)
+#'a <- glmm.hp(mod1)
+#'plot(a)
+#'mod2 <- glm(Sepal.Length ~ Petal.Length + Petal.Width + Petal.Length:Petal.Width, data = iris)
 #'r.squaredGLMM(mod2)
 #'glmm.hp(mod2)
+#'b <- glmm.hp(mod2)
+#'plot(b)
 #'plot(glmm.hp(mod2))
-#'mod3 <- lm(Sepal.Length ~ Petal.Length+Petal.Width,data = iris)
+#'mod3 <- lm(Sepal.Length ~ Petal.Length + Petal.Width + Petal.Length:Petal.Width, data = iris)
 #'glmm.hp(mod3,type="R2")
 #'glmm.hp(mod3,commonality=TRUE)
 
@@ -49,7 +53,7 @@ glmm.hp <- function(mod,type = "adjR2",commonality = FALSE)
   if(inherits(mod, "merMod"))
   {# interaction checks
   Formu <- strsplit(as.character(mod@call$formula)[3],"")[[1]]
-  if("*"%in%Formu|":"%in%Formu)stop("Please put the interaction term as a new variable (i.e. the product of the variables) and put it and avoid the asterisk (*) and colon(:) in the original model")
+  if("*"%in%Formu)stop("Please put the interaction term as a new variable (i.e. link variables by colon(:) ) and avoid the asterisk (*) in the original model")
   varname <- strsplit(strsplit(as.character(mod@call$formula)[3],"(",fixed=T)[[1]][1]," ")[[1]]
   ivname <- varname[seq(1,length(varname),2)]
   }
@@ -57,14 +61,14 @@ glmm.hp <- function(mod,type = "adjR2",commonality = FALSE)
   if(inherits(mod, "lme"))
   {# interaction checks
   Formu <- strsplit(as.character(mod$call$fixed)[3],"")[[1]]
-  if("*"%in%Formu|":"%in%Formu)stop("Please put the interaction term as a new variable (i.e. the product of the variables) and put it and avoid the asterisk (*) and colon(:) in the original model")
+  if("*"%in%Formu)stop("Please put the interaction term as a new variable (i.e. link variables by colon(:)) and  avoid the asterisk (*) in the original model")
   ivname <- strsplit(as.character(mod$call$fixed)[3]," + ",fixed=T)[[1]]
   }
   
    if(inherits(mod, "glmmTMB"))
   {# interaction checks
   Formu <- strsplit(as.character(mod$call$formula)[3],"")[[1]]
-  if("*"%in%Formu|":"%in%Formu)stop("Please put the interaction term as a new variable (i.e. the product of the variables) and put it and avoid the asterisk (*) and colon(:) in the original model")
+  if("*"%in%Formu)stop("Please put the interaction term as a new variable (i.e. link variables by colon(:)) and  avoid the asterisk (*) and colon(:) in the original model")
    varname <- strsplit(strsplit(as.character(mod$call$formula)[3],"(",fixed=T)[[1]][1]," ")[[1]]
   ivname <- varname[seq(1,length(varname),2)]
   }
@@ -72,7 +76,7 @@ glmm.hp <- function(mod,type = "adjR2",commonality = FALSE)
     if(inherits(mod, c("glm","lm")))
   {# interaction checks
   Formu <- strsplit(as.character(mod$call$formula)[3],"")[[1]]
-  if("*"%in%Formu|":"%in%Formu)stop("Please put the interaction term as a new variable (i.e. the product of the variables) and put it and avoid the asterisk (*) and colon(:) in the original model")
+  if("*"%in%Formu)stop("Please put the interaction term as a new variable (i.e. link variables by colon(:)) and  avoid the asterisk (*) and colon(:) in the original model")
   ivname=attr(mod$terms, "term.labels") 
   }
    
@@ -105,7 +109,7 @@ else
 #ifelse(class(mod)=="merMod",dat <- eval(mod@call$data),dat <- eval(mod$call$data))
 if(inherits(mod, "merMod"))
 {dat <- eval(mod@call$data)
-if(sum(is.na(dat[,ivname]))>0){dat <- dat[-which(rowSums(is.na(dat[,ivname]))>0),]} 
+#if(sum(is.na(dat[,ivname]))>0){dat <- dat[-which(rowSums(is.na(dat[,ivname]))>0),]} 
 #dat <- na.omit(eval(mod@call$data))
 if(!inherits(dat, "data.frame")){stop("Please change the name of data object in the original (g)lmm analysis then try again.")}
 to_del <- paste(paste("-", iv.name, sep= ""), collapse = " ")

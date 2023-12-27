@@ -4,7 +4,7 @@
 \alias{plot.glmmhp}
 \title{Plot for a \code{\link{glmm.hp}} object}
 \usage{
-\method{plot}{glmmhp}(x, plot.perc = FALSE, color = NULL, n = 1, ...)
+\method{plot}{glmmhp}(x, plot.perc = FALSE, color = NULL, n = 1, dig = 4, ...)
 }
 \arguments{
 \item{x}{A \code{\link{glmm.hp}} object.}
@@ -14,6 +14,8 @@
 \item{color}{Color of variables.}
 
 \item{n}{Integer; which marginal R2 in output of r.squaredGLMM to plot.}
+
+\item{dig}{Integer; number of decimal places in Venn diagram.}
 
 \item{...}{unused}
 }
@@ -27,10 +29,11 @@ Plot for a \code{\link{glmm.hp}} object
 library(MuMIn)
 library(lme4)
 mod1 <- lmer(Sepal.Length ~ Petal.Length + Petal.Width +(1 | Species), data = iris)
-plot(glmm.hp(mod1))
+a <- glmm.hp(mod1)
+plot(a)
 mod3 <- lm(Sepal.Length ~ Petal.Length+Petal.Width,data = iris)
 plot(glmm.hp(mod3,type="R2"))
-plot(glmm.hp(mod3,commonality=TRUE))
+plot(glmm.hp(mod3,commonality=TRUE),color = c("#8DD3C7", "#FFFFB3"))
 }
 \author{
 {Jiangshan Lai} \email{lai@njfu.edu.cn}
