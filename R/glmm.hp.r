@@ -30,7 +30,8 @@
 #' @examples
 #' library(MuMIn)
 #' library(lme4)
-#' mod1 <- lmer(Sepal.Length ~ Petal.Length + Petal.Width + Petal.Length:Petal.Width + (1 | Species), data = iris)
+#' mod1 <- lmer(Sepal.Length ~ Petal.Length + Petal.Width + Petal.Length:Petal.Width + (1 | Species),
+#'              data = iris)
 #' r.squaredGLMM(mod1)
 #' glmm.hp(mod1)
 #' a <- glmm.hp(mod1)
