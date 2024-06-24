@@ -102,34 +102,28 @@ glmm.hp <- function(mod, type = "adjR2", commonality = FALSE) {
       r2type <- "hierarchical.partitioning"
     }
   }
-  # ifelse(class(mod)=="merMod",dat <- eval(mod@call$data),dat <- eval(mod$call$data))
+
+  # extract data from model
   if (inherits(mod, "merMod")) {
     dat <- mod@frame
-    # if(sum(is.na(dat[,ivname]))>0){dat <- dat[-which(rowSums(is.na(dat[,ivname]))>0),]}
-    # dat <- na.omit(eval(mod@call$data))
-    to_del <- paste(paste("-", iv.name, sep = ""), collapse = " ")
-    # reduced formula
-    modnull <- stats::update(stats::formula(mod), paste(". ~ . ", to_del, sep = ""))
-    mod_null <- stats::update(object = mod, formula. = modnull, data = dat)
-  }
-
-  if (inherits(mod, "lme")) {
+  } else if (inherits(mod, "lme")) {
     dat <- mod$data
-    mod_null <- stats::update(object = mod, data = dat, fixed = ~1)
-  }
-
-
-  if (inherits(mod, c("glm", "lm"))) {
+  } else if (inherits(mod, c("glm", "lm"))) {
     dat <- na.omit(mod$model)
-
-    to_del <- paste(paste("-", iv.name, sep = ""), collapse = " ")
-    # reduced formula
-    modnull <- stats::update(stats::formula(mod), paste(". ~ . ", to_del, sep = ""))
-    mod_null <- stats::update(object = mod, formula. = modnull, data = dat)
-  }
-  if (inherits(mod, c("glmmTMB"))) {
+  } else if (inherits(mod, c("glmmTMB"))) {
     dat <- na.omit(mod$frame)
+  } else stop("Unknown model type")
 
+  # check data are not null
+  if (is.null(dat)) {
+    stop("Model does not contain data used to fit it.
+         Remake the model with, e.g. lm(..., model = TRUE) - which is the default")
+  }
+
+  # make null model
+  if (inherits(mod, "lme")) { # don't know why this is special case
+    mod_null <- stats::update(object = mod, data = dat, fixed = ~1)
+  } else {
     to_del <- paste(paste("-", iv.name, sep = ""), collapse = " ")
     # reduced formula
     modnull <- stats::update(stats::formula(mod), paste(". ~ . ", to_del, sep = ""))
