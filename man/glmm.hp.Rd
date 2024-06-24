@@ -27,7 +27,8 @@ This function conducts hierarchical partitioning to calculate the individual con
 \examples{
 library(MuMIn)
 library(lme4)
-mod1 <- lmer(Sepal.Length ~ Petal.Length + Petal.Width + Petal.Length:Petal.Width+(1|Species),data = iris)
+mod1 <- lmer(Sepal.Length ~ Petal.Length + Petal.Width + Petal.Length:Petal.Width + (1 | Species),
+             data = iris)
 r.squaredGLMM(mod1)
 glmm.hp(mod1)
 a <- glmm.hp(mod1)
@@ -39,8 +40,8 @@ b <- glmm.hp(mod2)
 plot(b)
 plot(glmm.hp(mod2))
 mod3 <- lm(Sepal.Length ~ Petal.Length + Petal.Width + Petal.Length:Petal.Width, data = iris)
-glmm.hp(mod3,type="R2")
-glmm.hp(mod3,commonality=TRUE)
+glmm.hp(mod3, type = "R2")
+glmm.hp(mod3, commonality = TRUE)
 }
 \references{
 \itemize{

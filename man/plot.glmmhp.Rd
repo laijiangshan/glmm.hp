@@ -28,12 +28,12 @@ Plot for a \code{\link{glmm.hp}} object
 \examples{
 library(MuMIn)
 library(lme4)
-mod1 <- lmer(Sepal.Length ~ Petal.Length + Petal.Width +(1 | Species), data = iris)
+mod1 <- lmer(Sepal.Length ~ Petal.Length + Petal.Width + (1 | Species), data = iris)
 a <- glmm.hp(mod1)
 plot(a)
-mod3 <- lm(Sepal.Length ~ Petal.Length+Petal.Width,data = iris)
-plot(glmm.hp(mod3,type="R2"))
-plot(glmm.hp(mod3,commonality=TRUE),color = c("#8DD3C7", "#FFFFB3"))
+mod3 <- lm(Sepal.Length ~ Petal.Length + Petal.Width, data = iris)
+plot(glmm.hp(mod3, type = "R2"))
+plot(glmm.hp(mod3, commonality = TRUE), color = c("#8DD3C7", "#FFFFB3"))
 }
 \author{
 {Jiangshan Lai} \email{lai@njfu.edu.cn}
