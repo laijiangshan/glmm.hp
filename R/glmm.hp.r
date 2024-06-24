@@ -103,12 +103,9 @@ glmm.hp <- function(mod, type = "adjR2", commonality = FALSE) {
   }
   # ifelse(class(mod)=="merMod",dat <- eval(mod@call$data),dat <- eval(mod$call$data))
   if (inherits(mod, "merMod")) {
-    dat <- eval(mod@call$data)
+    dat <- mod@frame
     # if(sum(is.na(dat[,ivname]))>0){dat <- dat[-which(rowSums(is.na(dat[,ivname]))>0),]}
     # dat <- na.omit(eval(mod@call$data))
-    if (!inherits(dat, "data.frame")) {
-      stop("Please change the name of data object in the original (g)lmm analysis then try again.")
-    }
     to_del <- paste(paste("-", iv.name, sep = ""), collapse = " ")
     # reduced formula
     modnull <- stats::update(stats::formula(mod), paste(". ~ . ", to_del, sep = ""))
@@ -116,16 +113,22 @@ glmm.hp <- function(mod, type = "adjR2", commonality = FALSE) {
   }
 
   if (inherits(mod, "lme")) {
-    dat <- eval(mod$call$data)
+    dat <- mod$data
     mod_null <- stats::update(object = mod, data = dat, fixed = ~1)
   }
 
 
-  if (inherits(mod, c("glmmTMB", "glm", "lm"))) {
-    dat <- na.omit(eval(mod$call$data))
-    if (!inherits(dat, "data.frame")) {
-      stop("Please change the name of data object in the original (g)lmm analysis then try again.")
-    }
+  if (inherits(mod, c("glm", "lm"))) {
+    dat <- na.omit(mod$model)
+
+    to_del <- paste(paste("-", iv.name, sep = ""), collapse = " ")
+    # reduced formula
+    modnull <- stats::update(stats::formula(mod), paste(". ~ . ", to_del, sep = ""))
+    mod_null <- stats::update(object = mod, formula. = modnull, data = dat)
+  }
+  if (inherits(mod, c("glmmTMB"))) {
+    dat <- na.omit(mod$frame)
+
     to_del <- paste(paste("-", iv.name, sep = ""), collapse = " ")
     # reduced formula
     modnull <- stats::update(stats::formula(mod), paste(". ~ . ", to_del, sep = ""))
