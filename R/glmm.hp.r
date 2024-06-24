@@ -31,7 +31,8 @@
 #' library(MuMIn)
 #' library(lme4)
 #' mod1 <- lmer(Sepal.Length ~ Petal.Length + Petal.Width + Petal.Length:Petal.Width + (1 | Species),
-#'              data = iris)
+#'   data = iris
+#' )
 #' r.squaredGLMM(mod1)
 #' glmm.hp(mod1)
 #' a <- glmm.hp(mod1)
@@ -112,7 +113,9 @@ glmm.hp <- function(mod, type = "adjR2", commonality = FALSE) {
     dat <- na.omit(mod$model)
   } else if (inherits(mod, c("glmmTMB"))) {
     dat <- na.omit(mod$frame)
-  } else stop("Unknown model type")
+  } else {
+    stop("Unknown model type")
+  }
 
   # check data are not null
   if (is.null(dat)) {
