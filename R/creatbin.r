@@ -27,9 +27,5 @@ creatbin <-
 #' @return \item{Logical value}{TRUE or FALSE}
 #' @keywords internal
 odd <- function(val) {
-  if (val %% 2 == 0) {
-    return(FALSE)
-  } else {
-    return(TRUE)
-  }
+  val %% 2 != 0
 }
