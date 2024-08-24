@@ -30,12 +30,12 @@
 #'@examples
 #'library(MuMIn)
 #'library(lme4)
-#'mod1 <- lmer(Sepal.Length ~ Petal.Length + Petal.Width + Petal.Length:Petal.Width+(1|Species),data = iris)
+#'mod1 <- lmer(Sepal.Length ~ Petal.Length + Petal.Width+(1|Species),data = iris)
 #'r.squaredGLMM(mod1)
 #'glmm.hp(mod1)
 #'a <- glmm.hp(mod1)
 #'plot(a)
-#'mod2 <- glm(Sepal.Length ~ Petal.Length + Petal.Width + Petal.Length:Petal.Width, data = iris)
+#'mod2 <- glm(Sepal.Length ~ Petal.Length + Petal.Width, data = iris)
 #'r.squaredGLMM(mod2)
 #'glmm.hp(mod2)
 #'b <- glmm.hp(mod2)
@@ -49,7 +49,7 @@
 glmm.hp <- function(mod,type = "adjR2",commonality = FALSE) 
 {
   # initial checks
-  if (!inherits(mod, c("merMod","lme","glmmTMB","glm","lm"))) stop("glmm.hp only supports lme, merMod, glmmTMB or glm objects at the moment")
+  if (!inherits(mod, c("merMod","lme","glmmTMB","glm","lm","gam"))) stop("glmm.hp only supports lme, merMod, glmmTMB or glm objects at the moment")
   if(inherits(mod, "merMod"))
   {# interaction checks
   Formu <- strsplit(as.character(mod@call$formula)[3],"")[[1]]
@@ -77,7 +77,7 @@ glmm.hp <- function(mod,type = "adjR2",commonality = FALSE)
   {# interaction checks
   Formu <- strsplit(as.character(mod$call$formula)[3],"")[[1]]
   if("*"%in%Formu)stop("Please put the interaction term as a new variable (i.e. link variables by colon(:)) and  avoid the asterisk (*) and colon(:) in the original model")
-  ivname=attr(mod$terms, "term.labels") 
+  ivname <- attr(mod$terms, "term.labels") 
   }
    
   
@@ -125,8 +125,13 @@ mod_null <- stats::update(object = mod,data=dat,fixed=~1)
 
 
 if(inherits(mod, c("glmmTMB","glm","lm")))
-{dat <- na.omit(eval(mod$call$data))
+{
+dat <- eval(mod$call$data)
 if(!inherits(dat, "data.frame")){stop("Please change the name of data object in the original (g)lmm analysis then try again.")}
+va.set <- ivname
+Formu <- strsplit(as.character(mod$call$formula)[3],"")[[1]]
+if(":"%in%Formu){va.set <- ivname[unlist(lapply(strsplit(ivname,""), function(x) !":"%in%x))]}
+dat <- na.omit(dat[,c(as.character(mod$call$formula)[2],va.set)])
 to_del <- paste(paste("-", iv.name, sep= ""), collapse = " ")
 # reduced formula
  modnull<- stats::update(stats::formula(mod), paste(". ~ . ", to_del, sep=""))

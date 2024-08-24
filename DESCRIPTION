@@ -1,8 +1,8 @@
 Package: glmm.hp
 Type: Package
 Title: Hierarchical Partitioning of Marginal R2 for Generalized Mixed-Effect Models
-Version: 0.1-3
-Date:  2024-5-14
+Version: 0.1-4
+Date:  2024-8-24
 Depends:  R (>= 3.4.0),MuMIn,ggplot2,vegan
 Imports:lme4
 Authors@R: c(person("Jiangshan", "Lai", , "lai@njfu.edu.cn", role = c("aut", "cre"),

@@ -47,7 +47,7 @@ if(x$type=="commonality.analysis")
   if (!nvar%in% 2:4)
     stop("Venn diagram supports only 2-4 variables")
   else if (nvar == 2)
-	Var <- Var.part$Fractions[c(1, 3, 2)]
+	Var <- Var.part$Fractions[1:3]
   else if (nvar == 3)
     Var <- Var.part$Fractions[c(1:4, 6, 5, 7)]
   else if (nvar == 4)
