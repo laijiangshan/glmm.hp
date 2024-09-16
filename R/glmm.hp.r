@@ -124,7 +124,7 @@ mod_null <- stats::update(object = mod,data=dat,fixed=~1)
 }
 
 
-if(inherits(mod, c("glmmTMB","glm","lm")))
+if(inherits(mod, c("glm","lm")))
 {
 dat <- eval(mod$call$data)
 if(!inherits(dat, "data.frame")){stop("Please change the name of data object in the original (g)lmm analysis then try again.")}
@@ -137,6 +137,21 @@ to_del <- paste(paste("-", iv.name, sep= ""), collapse = " ")
  modnull<- stats::update(stats::formula(mod), paste(". ~ . ", to_del, sep=""))
  mod_null <-  stats::update(object = mod, formula. = modnull, data = dat)
  }
+
+if(inherits(mod, "glmmTMB"))
+{
+dat <- eval(mod$call$data)
+if(!inherits(dat, "data.frame")){stop("Please change the name of data object in the original (g)lmm analysis then try again.")}
+va.set <- ivname
+Formu <- strsplit(as.character(mod$call$formula)[3],"")[[1]]
+if(":"%in%Formu){va.set <- ivname[unlist(lapply(strsplit(ivname,""), function(x) !":"%in%x))]}
+#dat <- na.omit(dat[,c(as.character(mod$call$formula)[2],va.set)])
+to_del <- paste(paste("-", iv.name, sep= ""), collapse = " ")
+# reduced formula
+ modnull<- stats::update(stats::formula(mod), paste(". ~ . ", to_del, sep=""))
+ mod_null <-  stats::update(object = mod, formula. = modnull, data = dat)
+ }
+
 
 
 outputList  <- list()

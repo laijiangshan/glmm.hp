@@ -1,10 +1,10 @@
 Package: glmm.hp
 Type: Package
 Title: Hierarchical Partitioning of Marginal R2 for Generalized Mixed-Effect Models
-Version: 0.1-4
-Date:  2024-8-24
-Depends:  R (>= 3.4.0),MuMIn,ggplot2,vegan
-Imports:lme4
+Version: 0.1-5
+Date: 2024-9-16
+Depends: R (>= 3.4.0),MuMIn,ggplot2,vegan
+Imports: lme4
 Authors@R: c(person("Jiangshan", "Lai", , "lai@njfu.edu.cn", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-0279-8816")),person("Kim", "Nimon", role="aut"))
 Maintainer: Jiangshan Lai <lai@njfu.edu.cn>
@@ -12,4 +12,4 @@ Description: Conducts hierarchical partitioning to calculate individual contribu
 License: GPL
 Encoding: UTF-8
 URL: https://github.com/laijiangshan/glmm.hp
-RoxygenNote: 7.1.1
+RoxygenNote: 7.3.1
