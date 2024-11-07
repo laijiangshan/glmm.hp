@@ -130,8 +130,15 @@ dat <- eval(mod$call$data)
 if(!inherits(dat, "data.frame")){stop("Please change the name of data object in the original (g)lmm analysis then try again.")}
 va.set <- ivname
 Formu <- strsplit(as.character(mod$call$formula)[3],"")[[1]]
-if(":"%in%Formu){va.set <- ivname[unlist(lapply(strsplit(ivname,""), function(x) !":"%in%x))]}
-dat <- na.omit(dat[,c(as.character(mod$call$formula)[2],va.set)])
+if(":"%in%Formu){
+va.set <- ivname[unlist(lapply(strsplit(ivname,""), function(x) !":"%in%x))]}
+
+extracted <- if (!is.null(mod$offset)) {
+  sub(".*\\((.*)\\).*", "\\1", attr(mod$terms, "variables")[attr(mod$terms, "offset") + 1])
+} else NULL
+
+dat <- na.omit(dat[, c(as.character(mod$call$formula)[2], va.set, extracted)])
+
 to_del <- paste(paste("-", iv.name, sep= ""), collapse = " ")
 # reduced formula
  modnull<- stats::update(stats::formula(mod), paste(". ~ . ", to_del, sep=""))
@@ -175,8 +182,8 @@ for (k in 1:nr2type)
 	}
 	 
 	if(inherits(mod, "glm"))
-    {to_add <- paste("~",paste(tmp.name,collapse = " + "),sep=" ")
-    modnew  <- stats::update(object = mod_null, data = dat,to_add) 
+    { to_add <- paste("~", paste(c(tmp.name, if (!is.null(mod$offset)) as.character(attr(mod$terms, "variables")[attr(mod$terms, "offset") + 1])), collapse = " + "))
+      modnew <- stats::update(object = mod_null, data = dat, formula = as.formula(to_add)) 
     commonM[i, 2]  <- MuMIn::r.squaredGLMM(modnew)[k,1]
 	}
 
