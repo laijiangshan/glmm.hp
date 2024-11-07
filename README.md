@@ -1,6 +1,9 @@
 glmm.hp is an R package for Hierarchical partitioning for Marginal R2 for Generalized Mixed-effect Models, to install it, please use the following command in R:
+
 library(devtools)
+
 install_github('laijiangshan/glmm.hp',build_vignettes = TRUE)
+
 #If you haven't had devtools installed, please install it by typing "install.packages("devtools")" in R console.
 The article describing the package is officially published on Journal of Plant Ecology. https://academic.oup.com/jpe/article/15/6/1302/6845730   
 please cite papers if you use glmm.hp package as:
