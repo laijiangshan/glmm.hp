@@ -4,10 +4,12 @@
 \alias{glmm.hp}
 \title{Hierarchical Partitioning of Marginal R2 for Generalized Mixed-Effect Models}
 \usage{
-glmm.hp(mod, type = "adjR2", commonality = FALSE)
+glmm.hp(mod, iv = NULL, type = "adjR2", commonality = FALSE)
 }
 \arguments{
 \item{mod}{Fitted lme4,nlme,glmmTMB,glm or lm model objects.}
+
+\item{iv}{optional The relative importance of predictor groups will be assessed. The input for iv should be a list, where each element contains the names of variables belonging to a specific group. These variable names must correspond to the predictor variables defined in the model (mod).}
 
 \item{type}{The type of R-square of lm, either "R2" or "adjR2", in which "R2" is unadjusted R-square and "adjR2" is adjusted R-square, the default is "adjR2". The adjusted R-square is calculated using Ezekiel's formula (Ezekiel 1930) for lm.}
 
@@ -15,6 +17,8 @@ glmm.hp(mod, type = "adjR2", commonality = FALSE)
 }
 \value{
 \item{r.squaredGLMM}{The R2 for the full model.}
+
+\item{commonality.analysis}{If commonality=TRUE, a matrix containing the value and percentage of all commonality (2^N-1 for N predictors or matrices).}
 
 \item{hierarchical.partitioning}{A matrix containing individual effects and percentage of individual effects towards total (marginal) R2 for each predictor.}
 }
@@ -41,6 +45,9 @@ plot(glmm.hp(mod2))
 mod3 <- lm(Sepal.Length ~ Petal.Length + Petal.Width + Petal.Length:Petal.Width, data = iris)
 glmm.hp(mod3,type="R2")
 glmm.hp(mod3,commonality=TRUE)
+mod4 <- lm(Sepal.Length ~ Petal.Length + Petal.Width + Sepal.Width, data = iris)
+iv=list(pred1="Sepal.Width",pred2=c("Petal.Length","Petal.Width"))
+glmm.hp(mod4,iv)
 }
 \references{
 \itemize{
