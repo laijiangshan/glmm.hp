@@ -2,8 +2,8 @@
 
 #' @param  mod  Fitted lme4,nlme,glmmTMB,glm or lm model objects.
 #' @param  iv  optional The relative importance of predictor groups will be assessed. The input for iv should be a list, where each element contains the names of variables belonging to a specific group. These variable names must correspond to the predictor variables defined in the model (mod).
-#' @param  type The type of R-square of lm, either "R2" or "adjR2", in which "R2" is unadjusted R-square and "adjR2" is adjusted R-square, the default is "adjR2". The adjusted R-square is calculated using Ezekiel's formula (Ezekiel 1930) for lm. 
-#' @param  commonality Logical; If TRUE, the result of commonality analysis (2^N-1 fractions for N predictors) is shown, the default is FALSE. 
+#' @param  type The type of R-square of lm, either "R2" or "adjR2", in which "R2" is unadjusted R-square and "adjR2" is adjusted R-square, the default is "adjR2". The adjusted R-square is calculated using Ezekiel's formula (Ezekiel 1930) for lm.
+#' @param  commonality Logical; If TRUE, the result of commonality analysis (2^N-1 fractions for N predictors) is shown, the default is FALSE.
 
 #' @details This function conducts hierarchical partitioning to calculate the individual contributions of each predictor towards total (marginal) R2 for Generalized Linear Mixed-effect Model (including lm,glm and glmm). The marginal R2 is the output of r.squaredGLMM in MuMIn package for glm and glmm.
 
@@ -51,9 +51,9 @@
 #'glmm.hp(mod4,iv)
 
 
-glmm.hp <- function(mod,iv=NULL,type = "adjR2",commonality = FALSE) 
+glmm.hp <- function(mod,iv=NULL,type = "adjR2",commonality = FALSE)
 {
-  # initial checks
+  # initial checks发
   if (!inherits(mod, c("merMod","lme","glmmTMB","glm","lm","gam"))) stop("glmm.hp only supports lme, merMod, glmmTMB or glm objects at the moment")
   if(inherits(mod, "merMod"))
   {# interaction checks
@@ -62,14 +62,14 @@ glmm.hp <- function(mod,iv=NULL,type = "adjR2",commonality = FALSE)
   varname <- strsplit(strsplit(as.character(mod@call$formula)[3],"(",fixed=T)[[1]][1]," ")[[1]]
   ivname <- varname[seq(1,length(varname),2)]
   }
-  
+
   if(inherits(mod, "lme"))
   {# interaction checks
   Formu <- strsplit(as.character(mod$call$fixed)[3],"")[[1]]
   if("*"%in%Formu)stop("Please put the interaction term as a new variable (i.e. link variables by colon(:)) and  avoid the asterisk (*) in the original model")
   ivname <- strsplit(as.character(mod$call$fixed)[3]," + ",fixed=T)[[1]]
   }
-  
+
    if(inherits(mod, "glmmTMB"))
   {# interaction checks
   Formu <- strsplit(as.character(mod$call$formula)[3],"")[[1]]
@@ -77,18 +77,17 @@ glmm.hp <- function(mod,iv=NULL,type = "adjR2",commonality = FALSE)
    varname <- strsplit(strsplit(as.character(mod$call$formula)[3],"(",fixed=T)[[1]][1]," ")[[1]]
   ivname <- varname[seq(1,length(varname),2)]
   }
- 
- 
-  
+
+
     if(inherits(mod, c("glm","lm")))
   {# interaction checks
   Formu <- strsplit(as.character(mod$call$formula)[3],"")[[1]]
   if("*"%in%Formu)stop("Please put the interaction term as a new variable (i.e. link variables by colon(:)) and  avoid the asterisk (*) and colon(:) in the original model")
-  ivname <- attr(mod$terms, "term.labels") 
+  ivname <- attr(mod$terms, "term.labels")
   }
- 
- iv.name <- ivname 
-  
+
+ iv.name <- ivname
+
   outr2  <- r.squaredGLMM(mod)
   if(inherits(mod, "lm")&!inherits(mod, "glm"))
   {if(type=="adjR2")outr2  <- summary(mod)$adj.r.squared
@@ -103,48 +102,51 @@ glmm.hp <- function(mod,iv=NULL,type = "adjR2",commonality = FALSE)
   else
   {r2type <- 'hierarchical.partitioning'}
   }
-  #ifelse(class(mod)=="merMod",dat <- eval(mod@call$data),dat <- eval(mod$call$data))
+  #ifelse(class(mod)=="merMod",dat <- get(as.character(mod@call$data), envir = parent.frame()),dat <- eval(mod$call$data))
   if(inherits(mod, "merMod"))
-  {dat <- eval(mod@call$data)
-  #if(sum(is.na(dat[,ivname]))>0){dat <- dat[-which(rowSums(is.na(dat[,ivname]))>0),]} 
-  #dat <- na.omit(eval(mod@call$data))
+  {dat <- get(as.character(mod@call$data), envir = parent.frame())
+  #if(sum(is.na(dat[,ivname]))>0){dat <- dat[-which(rowSums(is.na(dat[,ivname]))>0),]}
+  #dat <- na.omit(get(as.character(mod@call$data), envir = parent.frame()))
   if(!inherits(dat, "data.frame")){stop("Please change the name of data object in the original (g)lmm analysis then try again.")}
   to_del <- paste(paste("-", iv.name, sep= ""), collapse = " ")
   # reduced formula
   modnull<- stats::update(stats::formula(mod), paste(". ~ . ", to_del, sep=""))
   mod_null <-  stats::update(object = mod, formula. = modnull, data = dat)
   }
-  
+
   if(inherits(mod, "lme"))
-  {dat <- eval(mod$call$data)
+  {#dat <- eval(mod$call$data)
+  dat <- get(as.character(mod$call$data), envir = parent.frame())
   mod_null <- stats::update(object = mod,data=dat,fixed=~1)
   }
-  
-  
+
+
   if(inherits(mod, c("glm","lm")))
   {
-    dat <- eval(mod$call$data)
+    #dat <- eval(mod$call$data)
+    dat <- na.omit(mod$model)
     if(!inherits(dat, "data.frame")){stop("Please change the name of data object in the original (g)lmm analysis then try again.")}
     va.set <- ivname
     Formu <- strsplit(as.character(mod$call$formula)[3],"")[[1]]
     if(":"%in%Formu){
       va.set <- ivname[unlist(lapply(strsplit(ivname,""), function(x) !":"%in%x))]}
-    
+
     extracted <- if (!is.null(mod$offset)) {
       sub(".*\\((.*)\\).*", "\\1", attr(mod$terms, "variables")[attr(mod$terms, "offset") + 1])
     } else NULL
-    
+
     dat <- na.omit(dat[, c(as.character(mod$call$formula)[2], va.set, extracted)])
-    
+
     to_del <- paste(paste("-", iv.name, sep= ""), collapse = " ")
     # reduced formula
     modnull<- stats::update(stats::formula(mod), paste(". ~ . ", to_del, sep=""))
     mod_null <-  stats::update(object = mod, formula. = modnull, data = dat)
   }
-  
+
   if(inherits(mod, "glmmTMB"))
   {
-    dat <- eval(mod$call$data)
+	#dat <-  get(as.character(mod$call$data), envir = parent.frame())dat <- eval(mod$call$data)
+	dat <- eval(mod$call$data)
     if(!inherits(dat, "data.frame")){stop("Please change the name of data object in the original (g)lmm analysis then try again.")}
     va.set <- ivname
     Formu <- strsplit(as.character(mod$call$formula)[3],"")[[1]]
@@ -155,12 +157,12 @@ glmm.hp <- function(mod,iv=NULL,type = "adjR2",commonality = FALSE)
     modnull<- stats::update(stats::formula(mod), paste(". ~ . ", to_del, sep=""))
     mod_null <-  stats::update(object = mod, formula. = modnull, data = dat)
   }
-  
- 
-   
-  
- if(is.null(iv)) 
-  {   
+
+
+
+
+ if(is.null(iv))
+  {
   nvar <- length(iv.name)
   if (nvar < 2)
     stop("Analysis not conducted. Insufficient number of predictors.")
@@ -183,29 +185,29 @@ for (k in 1:nr2type)
    if(inherits(mod, "merMod")|inherits(mod, "glmmTMB"))
    {to_add <- paste(paste("+", tmp.name, sep= ""), collapse = " ")
     modname <- stats::update(stats::formula(mod_null), paste(". ~ . ", to_add, sep=""))
-    modnew  <- stats::update(object = mod_null, formula. = modname, data = dat) 
+    modnew  <- stats::update(object = mod_null, formula. = modname, data = dat)
 	commonM[i, 2]  <- MuMIn::r.squaredGLMM(modnew)[k,1]
 	}
-	
+
 	if(inherits(mod, "lme"))
 	{to_add <- paste("~",paste(tmp.name,collapse = " + "),sep=" ")
-	  modnew  <- stats::update(object = mod_null, data = dat,fixed=to_add) 
+	  modnew  <- stats::update(object = mod_null, data = dat,fixed=to_add)
 	commonM[i, 2]  <- MuMIn::r.squaredGLMM(modnew)[k,1]
 	}
-	 
+
 	if(inherits(mod, "glm"))
     { to_add <- paste("~", paste(c(tmp.name, if (!is.null(mod$offset)) as.character(attr(mod$terms, "variables")[attr(mod$terms, "offset") + 1])), collapse = " + "))
-      modnew <- stats::update(object = mod_null, data = dat, formula = as.formula(to_add)) 
+      modnew <- stats::update(object = mod_null, data = dat, formula = as.formula(to_add))
     commonM[i, 2]  <- MuMIn::r.squaredGLMM(modnew)[k,1]
 	}
 
 	if(inherits(mod, "lm")&!inherits(mod, "glm"))
     {to_add <- paste("~",paste(tmp.name,collapse = " + "),sep=" ")
-    modnew  <- stats::update(object = mod_null, data = dat,to_add) 
+    modnew  <- stats::update(object = mod_null, data = dat,to_add)
     if(type=="adjR2")commonM[i, 2]  <- summary(modnew)$adj.r.squared
 	if(type=="R2")commonM[i, 2]  <- summary(modnew)$r.squared
 	}
-	
+
   }
 
   commonlist <- vector("list", totalN)
@@ -313,17 +315,17 @@ for (k in 1:nr2type)
 	VariableImportance[i, 3] <-  round(sum(binarymx[i, ] * (commonM[,3]/apply(binarymx,2,sum))), digits = 4)
 	#VariableImportance[i, 1] <-  round(sum(binarymx[i, ] * (commonM[,3]/apply(binarymx,2,sum))), digits = 4)
   }
-  
+
   VariableImportance[,1] <- outputcommonM[1:nvar,1]
   VariableImportance[,2] <- VariableImportance[,3]-VariableImportance[,1]
-  
+
   total=round(sum(VariableImportance[,3]),digits = 4)
   #total=round(sum(VariableImportance[,1]),digits = 4)
   VariableImportance[, 4] <- round(100*VariableImportance[, 3]/total,2)
 #VariableImportance[, 2] <- round(100*VariableImportance[, 1]/total,2)
  #dimnames(VariableImportance) <- list(iv.name, c("Individual","I.perc(%)"))
  dimnames(VariableImportance) <- list(iv.name, c("Unique","Average.share","Individual","I.perc(%)"))
-  
+
 if(commonality)
 {outputList[[k+1]]<-outputcommonM}
 
@@ -341,13 +343,13 @@ ilist <- names(iv)
 	else
 	{whichnoname <- which(ilist=="")
     names(iv)[whichnoname] <- paste("X",whichnoname,sep="")}
-	
+
 	ilist <- names(iv)
 
-	
+
 	ivlist <- ilist
 	iv.name <- ilist
-  
+
    ivID <- matrix(nrow = nvar, ncol = 1)
     for (i in 0:nvar - 1) {
         ivID[i + 1]  <-  2^i
@@ -364,46 +366,46 @@ ilist <- names(iv)
   outputList  <- list()
   outputList[[1]] <- outr2
   for (k in 1:nr2type)
-  { 
+  {
   commonM <- matrix(nrow = totalN, ncol = 3)
 
-  for (i in 1:totalN) 
-  { tmpname <- iv.name[as.logical(binarymx[, i])]  
+  for (i in 1:totalN)
+  { tmpname <- iv.name[as.logical(binarymx[, i])]
   tmp.name <- unlist(iv[names(iv)%in%tmpname])
   if(inherits(mod, "merMod")|inherits(mod, "glmmTMB"))
   {to_add <- paste(paste("+", tmp.name, sep= ""), collapse = " ")
   modname <- stats::update(stats::formula(mod_null), paste(". ~ . ", to_add, sep=""))
-  modnew  <- stats::update(object = mod_null, formula. = modname, data = dat) 
+  modnew  <- stats::update(object = mod_null, formula. = modname, data = dat)
   commonM[i, 2]  <- MuMIn::r.squaredGLMM(modnew)[k,1]
   }
-  
+
   if(inherits(mod, "lme"))
   {to_add <- paste("~",paste(tmp.name,collapse = " + "),sep=" ")
-  modnew  <- stats::update(object = mod_null, data = dat,fixed=to_add) 
+  modnew  <- stats::update(object = mod_null, data = dat,fixed=to_add)
   commonM[i, 2]  <- MuMIn::r.squaredGLMM(modnew)[k,1]
   }
-  
+
   if(inherits(mod, "glm"))
   { to_add <- paste("~", paste(c(tmp.name, if (!is.null(mod$offset)) as.character(attr(mod$terms, "variables")[attr(mod$terms, "offset") + 1])), collapse = " + "))
-  modnew <- stats::update(object = mod_null, data = dat, formula = as.formula(to_add)) 
+  modnew <- stats::update(object = mod_null, data = dat, formula = as.formula(to_add))
   commonM[i, 2]  <- MuMIn::r.squaredGLMM(modnew)[k,1]
   }
-  
+
   if(inherits(mod, "lm")&!inherits(mod, "glm"))
   {to_add <- paste("~",paste(tmp.name,collapse = " + "),sep=" ")
-  modnew  <- stats::update(object = mod_null, data = dat,to_add) 
+  modnew  <- stats::update(object = mod_null, data = dat,to_add)
   if(type=="adjR2")commonM[i, 2]  <- summary(modnew)$adj.r.squared
   if(type=="R2")commonM[i, 2]  <- summary(modnew)$r.squared
   }
   }
   commonlist <- vector("list", totalN)
-  
+
   seqID <- vector()
   for (i in 1:nvar) {
     seqID[i] = 2^(i-1)
   }
-  
-  
+
+
   for (i in 1:totalN) {
     bit <- binarymx[1, i]
     if (bit == 1)
@@ -421,7 +423,7 @@ ilist <- names(iv)
     ivname <- ivname * -1
     commonlist[[i]] <- ivname
   }
-  
+
   for (i in 1:totalN) {
     r2list <- unlist(commonlist[i])
     numlist  <-  length(r2list)
@@ -438,7 +440,7 @@ ilist <- names(iv)
     }
     commonM[i, 3]  <-  ccsum
   }
-  
+
   orderList <- vector("list", totalN)
   index  <-  0
   for (i in 1:nvar) {
@@ -450,7 +452,7 @@ ilist <- names(iv)
       }
     }
   }
-  
+
   outputcommonM <- matrix(nrow = totalN + 1, ncol = 2)
   totalRSquare <- sum(commonM[, 3])
   for (i in 1:totalN) {
@@ -494,39 +496,39 @@ ilist <- names(iv)
   colNames <- format.default(c("Fractions", " % Total"),
                              justify = "right")
   dimnames(outputcommonM) <- list(rowNames, colNames)
-  
+
   VariableImportance <- matrix(nrow = nvar, ncol = 4)
   # VariableImportance <- matrix(nrow = nvar, ncol = 2)
   for (i in 1:nvar) {
     VariableImportance[i, 3] <-  round(sum(binarymx[i, ] * (commonM[,3]/apply(binarymx,2,sum))), digits = 4)
     #VariableImportance[i, 1] <-  round(sum(binarymx[i, ] * (commonM[,3]/apply(binarymx,2,sum))), digits = 4)
   }
-  
+
   VariableImportance[,1] <- outputcommonM[1:nvar,1]
   VariableImportance[,2] <- VariableImportance[,3]-VariableImportance[,1]
-  
+
   total=round(sum(VariableImportance[,3]),digits = 4)
   #total=round(sum(VariableImportance[,1]),digits = 4)
   VariableImportance[, 4] <- round(100*VariableImportance[, 3]/total,2)
   #VariableImportance[, 2] <- round(100*VariableImportance[, 1]/total,2)
   #dimnames(VariableImportance) <- list(iv.name, c("Individual","I.perc(%)"))
   dimnames(VariableImportance) <- list(iv.name, c("Unique","Average.share","Individual","I.perc(%)"))
-  
+
   if(commonality)
   {outputList[[k+1]]<-outputcommonM}
-  
+
   else
   {outputList[[k+1]]<-VariableImportance}
   }
- 
-  
+
+
 }
   names(outputList) <- c("r.squaredGLMM",r2type)
   if(inherits(mod, "lm")&!inherits(mod, "glm")){names(outputList) <- c("Total.R2",r2type)}
   outputList$variables <- iv.name
   if(commonality){outputList$type="commonality.analysis"}
   if(!commonality){outputList$type="hierarchical.partitioning"}
-  
+
 class(outputList) <- "glmmhp" # Class definition
 outputList
 }

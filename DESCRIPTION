@@ -1,12 +1,12 @@
 Package: glmm.hp
 Type: Package
 Title: Hierarchical Partitioning of Marginal R2 for Generalized Mixed-Effect Models
-Version: 0.1-7
-Date: 2024-12-10
+Version: 0.1-8
+Date: 2025-03-23
 Depends: R (>= 3.4.0),MuMIn,ggplot2,vegan
 Imports: lme4
 Authors@R: c(person("Jiangshan", "Lai", , "lai@njfu.edu.cn", role = c("aut", "cre"),
-           comment = c(ORCID = "0000-0002-0279-8816")),person("Kim", "Nimon", role="aut"))
+           comment = c(ORCID = "0000-0002-0279-8816")),person("Kim", "Nimon", role="aut"),person("Yao", "Liu", role="aut"))
 Maintainer: Jiangshan Lai <lai@njfu.edu.cn>
 Description: Conducts hierarchical partitioning to calculate individual contributions of each predictor (fixed effects) towards marginal R2 for generalized linear mixed-effect model (including lm, glm and glmm) based on output of r.squaredGLMM() in 'MuMIn', applying the algorithm of Lai J.,Zou Y., Zhang S.,Zhang X.,Mao L.(2022)glmm.hp: an R package for computing individual effect of predictors in generalized linear mixed models.Journal of Plant Ecology,15(6)1302-1307<doi:10.1093/jpe/rtac096>.
 License: GPL
